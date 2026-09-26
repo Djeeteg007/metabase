@@ -172,27 +172,6 @@ jobs:
             e2e-visual/test-results/
           if-no-files-found: ignore
 
-      - name: Profile a sample of stories
-        if: ${{ !cancelled() && env.VISUAL_PROFILE_SAMPLE != '' }}
-        env:
-          VISUAL_SNAPSHOT_DIR: e2e-visual/profile/screenshots
-        run: |
-          for workers in 1 4; do
-            VISUAL_PROFILE=1 VISUAL_PROFILE_DIR="e2e-visual/profile/w$workers" VISUAL_WORKERS=$workers \
-              bun run test-visual:docker --update-snapshots all --repeat-each 3 --grep "$VISUAL_PROFILE_SAMPLE" || true
-            cp e2e-visual/test-results/results.json "e2e-visual/profile/w$workers-results.json" || true
-          done
-          VISUAL_PROFILE=trace VISUAL_PROFILE_DIR=e2e-visual/profile/trace VISUAL_WORKERS=1 \
-            bun run test-visual:docker --update-snapshots all --grep "$VISUAL_PROFILE_TRACE_SAMPLE" || true
-
-      - name: Upload profile
-        if: ${{ !cancelled() && env.VISUAL_PROFILE_SAMPLE != '' }}
-        uses: actions/upload-artifact@v7
-        with:
-          name: visual-test-profile
-          path: e2e-visual/profile/
-          if-no-files-found: ignore
-
   loki-tests-result:
     name: visual-test
     needs: [story-selection, visual-test]
